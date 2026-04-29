@@ -1,0 +1,348 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu - Deep Restaurant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-900">
+    <header class="bg-gradient-to-r from-red-700 via-red-600 to-orange-500 text-white shadow-2xl sticky top-0 z-30">
+        <div class="max-w-6xl mx-auto px-4 py-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+            <div class="flex items-center gap-4">
+                <div class="h-14 w-14 rounded-3xl bg-white/20 text-orange-100 shadow-lg flex items-center justify-center text-2xl font-black">D</div>
+                <div>
+                    <p class="text-xs uppercase tracking-[0.35em] text-orange-200">Deep Restaurant</p>
+                    <h1 class="text-3xl font-extrabold tracking-tight">Welcome to Your Table</h1>
+                    <p class="mt-2 text-sm text-orange-100">Select your table, build your order, and send it to the kitchen directly.</p>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row sm:items-center gap-4 bg-white/10 rounded-3xl border border-white/20 p-4 shadow-lg">
+                <div class="text-sm text-orange-100">Currently seated at</div>
+                <div class="inline-flex items-center gap-3 bg-white text-red-600 rounded-full px-4 py-2 font-bold shadow-sm">
+                    <span class="text-xs uppercase tracking-[0.35em] text-slate-500">Table</span>
+                    <span id="tableBadgeHeader" class="text-xl">05</span>
+                </div>
+                <div class="text-sm text-orange-100">Change table</div>
+                <select id="tableSelect" onchange="updateTable()" class="rounded-full border border-white/40 bg-white/90 px-4 py-2 text-red-600 font-bold shadow-sm outline-none">
+                    <option value="1">01</option>
+                    <option value="2">02</option>
+                    <option value="3">03</option>
+                    <option value="4">04</option>
+                    <option value="5" selected>05</option>
+                    <option value="6">06</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <section class="max-w-6xl mx-auto px-4 py-6 grid gap-4 lg:grid-cols-2">
+        <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <p class="text-xs uppercase tracking-[0.35em] text-slate-400">Morning Menu</p>
+            <h2 class="mt-3 text-2xl font-bold text-slate-900">6:00 - 12:00</h2>
+            <p class="mt-2 text-sm text-slate-500">Fresh breakfast and light meals available during morning service.</p>
+            <p class="mt-4 text-sm font-semibold text-slate-700"><span id="morningCount">0</span> varieties ready</p>
+        </article>
+        <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <p class="text-xs uppercase tracking-[0.35em] text-slate-400">Evening Menu</p>
+            <h2 class="mt-3 text-2xl font-bold text-slate-900">16:00 - 19:30</h2>
+            <p class="mt-2 text-sm text-slate-500">Evening specials with snacks and hot plates to enjoy after daytime service.</p>
+            <p class="mt-4 text-sm font-semibold text-slate-700"><span id="eveningCount">0</span> varieties ready</p>
+        </article>
+    </section>
+
+    <div class="max-w-6xl mx-auto px-4 py-2 flex flex-wrap items-center gap-3">
+        <button id="allSlotBtn" onclick="selectTimeSlot('all')" class="rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-50">All</button>
+        <button id="morningSlotBtn" onclick="selectTimeSlot('morning')" class="rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-50">Morning only</button>
+        <button id="eveningSlotBtn" onclick="selectTimeSlot('evening')" class="rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-50">Evening only</button>
+        <p class="text-sm text-slate-500">Tap a time slot to view the matching varieties on the menu.</p>
+    </div>
+
+    <main class="max-w-6xl mx-auto px-4 py-8 grid gap-8 lg:grid-cols-[2fr_1fr]">
+        <section class="space-y-6">
+            <div class="flex items-center justify-between gap-4 bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">Full Menu</h2>
+                    <p class="mt-1 text-sm text-slate-500">Choose fresh items for your table order.</p>
+                </div>
+                <div class="rounded-3xl bg-red-50 px-5 py-4 text-red-700 shadow-sm">
+                    <p class="text-sm uppercase tracking-[0.35em] text-red-500">Active Table</p>
+                    <p id="tableBadge" class="mt-2 text-4xl font-extrabold">05</p>
+                </div>
+            </div>
+
+            <div id="menuGrid" class="grid gap-4 md:grid-cols-2"></div>
+        </section>
+
+        <aside class="space-y-6">
+            <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+                <h2 class="text-xl font-bold text-slate-900">Order Summary</h2>
+                <p class="mt-2 text-sm text-slate-500">Review the items for this table before placing the order.</p>
+
+                <div id="cartSummary" class="mt-6 hidden space-y-4">
+                    <div class="rounded-3xl bg-slate-50 p-4 text-sm text-slate-700">
+                        <div class="flex justify-between mb-3">
+                            <span class="font-semibold">Items</span>
+                            <span id="cartItemCount">0 items</span>
+                        </div>
+                        <div class="space-y-3" id="cartItems"></div>
+                        <div class="mt-4 flex items-center justify-between border-t border-slate-200 pt-4 text-base font-bold text-slate-900">
+                            <span>Total</span>
+                            <span id="cartTotal">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="cartEmpty" class="mt-6 rounded-3xl bg-orange-50 p-6 text-sm text-orange-700">
+                    <p class="font-semibold">Cart is empty</p>
+                    <p class="mt-2">Use the menu to add items for this table.</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+                <h2 class="text-xl font-bold text-slate-900">Quick Actions</h2>
+                <p class="mt-2 text-sm text-slate-500">Submit the order or request the bill for the selected table.</p>
+
+                <div class="mt-6 flex flex-col gap-3">
+                    <button onclick="sendOrderToCounter()" class="w-full rounded-3xl bg-emerald-600 px-5 py-3 text-white font-semibold shadow-lg hover:bg-emerald-700">Place Order</button>
+                    <button onclick="requestBill()" class="w-full rounded-3xl bg-orange-500 px-5 py-3 text-white font-semibold shadow-lg hover:bg-orange-600">Request Bill</button>
+                </div>
+                <div id="orderConfirmBox" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm">
+                    <div class="w-full max-w-md rounded-[32px] bg-white p-6 shadow-2xl ring-1 ring-slate-200 transition-transform duration-300 ease-out">
+                        <div class="flex items-center gap-4">
+                            <div class="flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-600 text-white shadow-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-8 w-8"><path fill="currentColor" d="M9.5 16.5l-4.5-4.5 1.42-1.42L9.5 13.67l8.09-8.09L19 6.5z"/></svg>
+                            </div>
+                            <div>
+                                <p class="text-xl font-semibold text-slate-900">Order Confirmed</p>
+                                <p class="mt-2 text-sm text-slate-600">Your order has been sent for Table <span id="confirmedTable"></span>. The kitchen will start preparing it now.</p>
+                            </div>
+                        </div>
+                        <div class="mt-6 rounded-3xl bg-slate-50 p-4 text-slate-700">
+                            <p class="text-sm font-semibold">Order details</p>
+                            <p class="mt-2 text-sm">You can press OK to close this confirmation and continue browsing the menu.</p>
+                        </div>
+                        <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <button onclick="hideOrderConfirmation()" class="inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg hover:bg-emerald-700">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+                <h2 class="text-xl font-bold text-slate-900">Order Notes</h2>
+                <p class="mt-2 text-sm text-slate-500">Write a note for the kitchen or wait staff.</p>
+                <textarea id="orderNote" rows="4" class="mt-4 w-full rounded-3xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-800 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100" placeholder="Extra spice, no onion, waiter call..."></textarea>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        const menuItems = [
+            { id: 1, category: 'Food Varieties', name: 'Paneer Butter Masala', price: 280, cost: 160, image: 'https://images.unsplash.com/photo-1608759909121-df1c8bc1c4f4?auto=format&fit=crop&w=800&q=80', description: 'Creamy tomato gravy with soft paneer cubes.', tag: 'Chef Favorite', timeSlots: ['morning'] },
+            { id: 2, category: 'Food Varieties', name: 'Veg Pulao', price: 180, cost: 110, image: 'https://images.unsplash.com/photo-1604908177522-3096ca4f83ec?auto=format&fit=crop&w=800&q=80', description: 'Aromatic basmati rice cooked with veggies and spices.', tag: 'Light & Tasty', timeSlots: ['morning'] },
+            { id: 3, category: 'Food Varieties', name: 'Masala Dosa', price: 150, cost: 70, image: 'https://images.unsplash.com/photo-1588167103028-91a5d99a3a98?auto=format&fit=crop&w=800&q=80', description: 'Crispy dosa with spicy potato filling.', tag: 'Breakfast', timeSlots: ['morning'] },
+            { id: 4, category: 'Food Varieties', name: 'Paneer Parantha', price: 120, cost: 65, image: 'https://images.unsplash.com/photo-1603046891889-08d5c25111b1?auto=format&fit=crop&w=800&q=80', description: 'Stuffed paratha served with chutney.', tag: 'Breakfast', timeSlots: ['morning'] },
+            { id: 5, category: 'Cold Drinks', name: 'Mango Lassi', price: 120, cost: 45, image: 'https://images.unsplash.com/photo-1563805042-7684a2536eef?auto=format&fit=crop&w=800&q=80', description: 'Sweet mango yogurt drink with cardamom.', tag: 'Refreshing', timeSlots: ['morning'] },
+            { id: 6, category: 'Cold Drinks', name: 'Lemon Soda', price: 90, cost: 30, image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=800&q=80', description: 'Chilled lime soda with mint.', tag: 'Cool', timeSlots: ['morning'] },
+            { id: 7, category: 'Cold Drinks', name: 'Cold Coffee', price: 140, cost: 70, image: 'https://images.unsplash.com/photo-1532634726-8b9fb99895a4?auto=format&fit=crop&w=800&q=80', description: 'Iced coffee with vanilla and cream.', tag: 'Icy', timeSlots: ['evening'] },
+            { id: 8, category: 'Food Varieties', name: 'Crispy Veg Samosa', price: 90, cost: 35, image: 'https://images.unsplash.com/photo-1604908177522-3096ca4f83ec?auto=format&fit=crop&w=800&q=80', description: 'Crunchy pastry filled with spiced potatoes.', tag: 'Crispy', timeSlots: ['evening'] },
+            { id: 9, category: 'Food Varieties', name: 'Garlic Naan', price: 50, cost: 18, image: 'https://images.unsplash.com/photo-1607252654041-1f80425074e3?auto=format&fit=crop&w=800&q=80', description: 'Soft naan topped with garlic butter.', tag: 'Perfect Pair', timeSlots: ['evening'] },
+            { id: 10, category: 'Food Varieties', name: 'Gulab Jamun', price: 100, cost: 40, image: 'https://images.unsplash.com/photo-1563805042-7684a2536eef?auto=format&fit=crop&w=800&q=80', description: 'Soft milk dumplings soaked in sweet syrup.', tag: 'Sweet End', timeSlots: ['evening'] },
+            { id: 11, category: 'Cold Drinks', name: 'Iced Tea', price: 110, cost: 40, image: 'https://images.unsplash.com/photo-1510626176961-4b77b30f0d54?auto=format&fit=crop&w=800&q=80', description: 'Cold lemon tea with mint and ice.', tag: 'Chill', timeSlots: ['evening'] },
+            { id: 12, category: 'Cold Drinks', name: 'Fruit Punch', price: 130, cost: 50, image: 'https://images.unsplash.com/photo-1543872084-c7bd3822856b?auto=format&fit=crop&w=800&q=80', description: 'Fresh fruit juice blend with grenadine.', tag: 'Fruity', timeSlots: ['evening'] }
+        ];
+
+        let cart = [];
+        let currentTable = 5;
+        let selectedSlot = 'all';
+
+        function formatCurrency(amount) {
+            return `₹${Number(amount).toFixed(0)}`;
+        }
+
+        function renderMenu() {
+            const menuGrid = document.getElementById('menuGrid');
+            const visibleItems = menuItems.filter(item => selectedSlot === 'all' || item.timeSlots.includes(selectedSlot));
+            const drinkItems = visibleItems.filter(item => item.category === 'Cold Drinks');
+            const foodItems = visibleItems.filter(item => item.category !== 'Cold Drinks');
+
+            const section = (title, items) => `
+                <div class="space-y-4">
+                    <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
+                        <div class="flex items-center justify-between gap-4">
+                            <div>
+                                <p class="text-sm uppercase tracking-[0.35em] text-slate-500">${title}</p>
+                                <h2 class="mt-3 text-2xl font-bold text-slate-900">${title === 'Cold Drinks' ? 'Thanda Pani & Beverages' : 'Food Varieties'}</h2>
+                            </div>
+                            <p class="text-sm text-slate-500">${items.length} choices</p>
+                        </div>
+                    </div>
+                    <div class="grid gap-4 md:grid-cols-2">
+                        ${items.map(item => `
+                            <article class="rounded-3xl border border-slate-200 bg-white p-0 shadow-sm transition hover:-translate-y-1 hover:shadow-lg overflow-hidden">
+                                <img src="${item.image}" alt="${item.name}" class="h-44 w-full object-cover" />
+                                <div class="p-5">
+                                    <div class="flex items-start justify-between gap-4">
+                                        <div>
+                                            <p class="text-xs uppercase tracking-[0.35em] text-slate-400">${item.category}</p>
+                                            <h3 class="mt-3 text-xl font-semibold text-slate-900">${item.name}</h3>
+                                            <p class="mt-2 text-sm text-slate-500">${item.description}</p>
+                                        </div>
+                                        <div class="rounded-3xl bg-slate-50 px-4 py-2 text-slate-900 font-bold">${formatCurrency(item.price)}</div>
+                                    </div>
+                                    <div class="mt-5 flex items-center justify-between gap-3">
+                                        <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase text-amber-700">${item.tag}</span>
+                                        <button onclick="addToCart(${item.id})" class="rounded-3xl bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-red-700">Add to cart</button>
+                                    </div>
+                                </div>
+                            </article>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            if (drinkItems.length === 0 && foodItems.length === 0) {
+                menuGrid.innerHTML = `<div class="rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">No items available for selected time slot.</div>`;
+                return;
+            }
+
+            menuGrid.innerHTML = section('Cold Drinks', drinkItems) + section('Food Varieties', foodItems);
+        }
+
+        function selectTimeSlot(slot) {
+            selectedSlot = slot;
+            renderMenu();
+            document.getElementById('allSlotBtn').classList.toggle('bg-slate-900 text-white', slot === 'all');
+            document.getElementById('allSlotBtn').classList.toggle('bg-white text-slate-900', slot !== 'all');
+            document.getElementById('morningSlotBtn').classList.toggle('bg-slate-900 text-white', slot === 'morning');
+            document.getElementById('morningSlotBtn').classList.toggle('bg-white text-slate-900', slot !== 'morning');
+            document.getElementById('eveningSlotBtn').classList.toggle('bg-slate-900 text-white', slot === 'evening');
+            document.getElementById('eveningSlotBtn').classList.toggle('bg-white text-slate-900', slot !== 'evening');
+        }
+
+        function updateTable() {
+            const tableSelect = document.getElementById('tableSelect');
+            currentTable = Number(tableSelect.value);
+            document.getElementById('tableBadge').textContent = String(currentTable).padStart(2, '0');
+            document.getElementById('tableBadgeHeader').textContent = String(currentTable).padStart(2, '0');
+            updateCartUI();
+        }
+
+        function addToCart(menuId) {
+            const item = menuItems.find(menu => menu.id === menuId);
+            if (!item) return;
+            cart.push({ ...item, table: currentTable });
+            updateCartUI();
+        }
+
+        function removeCartItem(name) {
+            const index = cart.findIndex(item => item.name === name && item.table === currentTable);
+            if (index !== -1) {
+                cart.splice(index, 1);
+                updateCartUI();
+            }
+        }
+
+        function updateCartUI() {
+            const cartSummary = document.getElementById('cartSummary');
+            const cartEmpty = document.getElementById('cartEmpty');
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            const cartItemCount = document.getElementById('cartItemCount');
+
+            const tableCart = cart.filter(item => item.table === currentTable);
+            if (tableCart.length === 0) {
+                cartSummary.classList.add('hidden');
+                cartEmpty.classList.remove('hidden');
+                return;
+            }
+
+            cartSummary.classList.remove('hidden');
+            cartEmpty.classList.add('hidden');
+
+            const grouped = tableCart.reduce((acc, item) => {
+                if (!acc[item.name]) acc[item.name] = { ...item, qty: 0 };
+                acc[item.name].qty += 1;
+                return acc;
+            }, {});
+
+            cartItems.innerHTML = Object.values(grouped).map(item => `
+                <div class="flex items-center justify-between gap-3 rounded-3xl bg-white px-4 py-3 shadow-sm">
+                    <div>
+                        <p class="font-semibold text-slate-900">${item.name}</p>
+                        <p class="text-xs text-slate-500">Qty: ${item.qty} · ${formatCurrency(item.price)}</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <p class="font-bold text-slate-900">${formatCurrency(item.price * item.qty)}</p>
+                        <button onclick="removeCartItem('${item.name}')" class="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-500 hover:bg-slate-200">Remove</button>
+                    </div>
+                </div>
+            `).join('');
+
+            const total = tableCart.reduce((sum, item) => sum + item.price, 0);
+            cartItemCount.textContent = `${tableCart.length} item${tableCart.length === 1 ? '' : 's'}`;
+            cartTotal.textContent = formatCurrency(total);
+        }
+
+        function sendOrderToCounter() {
+            const tableCart = cart.filter(item => item.table === currentTable);
+            if (tableCart.length === 0) {
+                alert('Please add at least one item before placing your order.');
+                return;
+            }
+
+            const orderNote = document.getElementById('orderNote').value.trim();
+            const total = tableCart.reduce((sum, item) => sum + item.price, 0);
+            const orderItems = tableCart.map(item => ({ name: item.name, price: item.price, cost: item.cost || 0 }));
+            const costTotal = orderItems.reduce((sum, item) => sum + item.cost, 0);
+            const order = {
+                id: Date.now(),
+                table: currentTable,
+                items: orderItems,
+                total,
+                costTotal,
+                note: orderNote,
+                createdAt: new Date().toISOString(),
+                status: 'new'
+            };
+
+            const orders = JSON.parse(localStorage.getItem('deepRestaurantOrders') || '[]');
+            orders.push(order);
+            localStorage.setItem('deepRestaurantOrders', JSON.stringify(orders));
+
+            cart = cart.filter(item => item.table !== currentTable);
+            document.getElementById('orderNote').value = '';
+            updateCartUI();
+            document.getElementById('confirmedTable').textContent = String(currentTable).padStart(2, '0');
+            document.getElementById('orderConfirmBox').classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            document.getElementById('cartSummary').classList.add('hidden');
+            document.getElementById('cartEmpty').classList.remove('hidden');
+        }
+
+        function hideOrderConfirmation() {
+            document.getElementById('orderConfirmBox').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        function requestBill() {
+            alert(`Wait staff is bringing your bill to Table ${String(currentTable).padStart(2, '0')}!`);
+        }
+
+        function renderTimePlan() {
+            const morningCount = menuItems.filter(item => item.timeSlots.includes('morning')).length;
+            const eveningCount = menuItems.filter(item => item.timeSlots.includes('evening')).length;
+            document.getElementById('morningCount').textContent = morningCount;
+            document.getElementById('eveningCount').textContent = eveningCount;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderMenu();
+            renderTimePlan();
+            selectTimeSlot('all');
+            updateCartUI();
+        });
+    </script>
+</body>
+</html>
